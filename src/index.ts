@@ -21,7 +21,7 @@ const main = async () => {
     logging: !__prod__,
     synchronize: !__prod__,
     username: "postgres",
-    password: "123456"
+    password: "gideon "
   });
 
   // const user = await User.create({ name: "bob" }).save();
@@ -95,6 +95,7 @@ const main = async () => {
   
     const todo = await Todo.create({
       text: ticket.name,
+      taskId: ticketId,
       creatorId: req.userId,
       status: ticket.status.status.toLowerCase()
     }).save();
@@ -113,17 +114,36 @@ const main = async () => {
   });
 
   app.put("/todo", isAuth, async (req, res) => {
-    const todo = await Todo.findOne(req.body.id);
-    if (!todo) {
-      res.send({ todo: null });
-      return;
+    try{
+      console.log("---------",req.body)
+
+    // const ticketId = req.body.text.replace('#','');
+    let todo = await Todo.findOne(req.body.id);
+      
+      console.log("----------todo",todo?.taskId)
+       let result: AxiosResponse = await axios.put(`https://api.clickup.com/api/v2/task/${todo?.taskId}`,{status: req.body.status.label}, { headers: {"Authorization" : req.body.clickupId}});
+       let ticket = result.data;
+      res.send({ticket});
+    }catch(e){
+      console.log('---er------',e)
     }
-    if (todo.creatorId !== req.userId) {
-      throw new Error("not authorized");
-    }
-    todo.completed = !todo.completed;
-    await todo.save();
-    res.send({ todo });
+    // const todo = await Todo.create({
+    //   text: ticket.name,
+    //   creatorId: req.userId,
+    //   status: ticket.status.status.toLowerCase()
+    // }).save();
+    // res.send({ todo });
+    // const todo = await Todo.findOne(req.body.id);
+    // if (!todo) {
+    //   res.send({ todo: null });
+    //   return;
+    // }
+    // if (todo.creatorId !== req.userId) {
+    //   throw new Error("not authorized");
+    // }
+    // todo.completed = !todo.completed;
+    // await todo.save();
+    // res.send({ todo });
   });
 
   app.get("/me", async (req, res) => {

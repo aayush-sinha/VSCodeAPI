@@ -16,6 +16,9 @@ export class Todo extends BaseEntity {
   @Column("text")
   text: string;
 
+  @Column("text")
+  taskId: string;
+
   @Column("text", { nullable: true })
   status: string;
 
