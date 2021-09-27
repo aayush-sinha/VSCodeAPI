@@ -14,6 +14,9 @@ export class User extends BaseEntity {
 
   @Column("text", { nullable: true })
   name: string;
+  
+  @Column("text", { nullable: true })
+  clickUpId: string;
 
   @Column("text", { unique: true })
   githubId: string;

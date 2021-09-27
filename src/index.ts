@@ -11,6 +11,7 @@ import jwt from "jsonwebtoken";
 import cors from "cors";
 import { Todo } from "./entities/Todo";
 import { isAuth } from "./isAuth";
+import axios, { AxiosResponse } from 'axios';
 
 const main = async () => {
   await createConnection({
@@ -42,6 +43,7 @@ const main = async () => {
       },
       async (_, __, profile, cb) => {
         let user = await User.findOne({ where: { githubId: profile.id } });
+        console.log("--------------------------->",profile)
         if (user) {
           user.name = profile.displayName;
           await user.save();
@@ -84,11 +86,30 @@ const main = async () => {
   });
 
   app.post("/todo", isAuth, async (req, res) => {
+
+      const ticketId = req.body.text.replace('#','');
+      let result: AxiosResponse = await axios.get(`https://api.clickup.com/api/v2/task/${ticketId}`, { headers: {"Authorization" : req.body.clickupId}});
+      let ticket = result.data;
+      console.log(ticket)
+
+  
     const todo = await Todo.create({
-      text: req.body.text,
+      text: ticket.name,
       creatorId: req.userId,
+      status: ticket.status.status.toLowerCase()
     }).save();
     res.send({ todo });
+  });
+
+  app.put("/clickup", isAuth, async (req, res) => {
+    let user = await User.findOne(req.body.id);
+    if (!user) {
+      res.send({ todo: null });
+      return;
+    }
+    user.clickUpId = req.body.clickUpId;
+    await user.save();
+    res.send({ user });
   });
 
   app.put("/todo", isAuth, async (req, res) => {
