@@ -96,7 +96,6 @@ const main = async () => {
     const todo = await Todo.create({
       text: ticket.name,
       taskId: ticketId,
-      creatorId: req.userId,
       status: ticket.status.status.toLowerCase()
     }).save();
     res.send({ todo });
@@ -115,14 +114,18 @@ const main = async () => {
 
   app.put("/todo", isAuth, async (req, res) => {
     try{
-      console.log("---------",req.body)
+      console.log("----id-----",req.body)
+      let status = req.body.status;
+      status = status.toLowerCase();
+      console.log('---120-----',status)
 
     // const ticketId = req.body.text.replace('#','');
     let todo = await Todo.findOne(req.body.id);
       
       console.log("----------todo",todo?.taskId)
-       let result: AxiosResponse = await axios.put(`https://api.clickup.com/api/v2/task/${todo?.taskId}`,{status: req.body.status.label}, { headers: {"Authorization" : req.body.clickupId}});
+       let result: AxiosResponse = await axios.put(`https://api.clickup.com/api/v2/task/${todo?.taskId}`,{status}, { headers: {"Authorization" : req.body.clickupId}});
        let ticket = result.data;
+       console.log('----------ticket-',ticket)
       res.send({ticket});
     }catch(e){
       console.log('---er------',e)

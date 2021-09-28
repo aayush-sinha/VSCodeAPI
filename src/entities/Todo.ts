@@ -18,15 +18,15 @@ export class Todo extends BaseEntity {
 
   @Column("text")
   taskId: string;
-
+  
   @Column("text", { nullable: true })
   status: string;
 
   @Column("boolean", { default: false })
   completed: boolean;
 
-  @Column()
-  creatorId: number;
+  @Column('timestamp', { name: 'date', default: (): string => 'LOCALTIMESTAMP' })
+  date?: Date;
 
   @ManyToOne(() => User, (u) => u.todos)
   @JoinColumn({ name: "creatorId" })
