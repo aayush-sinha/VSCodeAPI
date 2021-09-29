@@ -20,8 +20,7 @@ const main = async () => {
     entities: [join(__dirname, "./entities/*.*")],
     logging: !__prod__,
     synchronize: !__prod__,
-    username: "postgres",
-    password: "gideon "
+    "url": "postgres://qwzcykvt:0GvXRCPtLhym-hyquhL0ruPXwbqsdzeE@fanny.db.elephantsql.com/qwzcykvt", 
   });
 
   // const user = await User.create({ name: "bob" }).save();
