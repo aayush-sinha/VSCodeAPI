@@ -26,6 +26,7 @@ const cors_1 = __importDefault(require("cors"));
 const Todo_1 = require("./entities/Todo");
 const isAuth_1 = require("./isAuth");
 const axios_1 = __importDefault(require("axios"));
+const PORT = process.env.PORT || 5000;
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     yield typeorm_1.createConnection({
         type: "postgres",
@@ -175,7 +176,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     app.get("/", (_req, res) => {
         res.send("hello");
     });
-    app.listen(3002, () => {
+    app.listen(PORT, () => {
         console.log("listening on localhost:3002");
     });
 });
