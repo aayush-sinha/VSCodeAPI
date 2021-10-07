@@ -12,7 +12,7 @@ import cors from "cors";
 import { Todo } from "./entities/Todo";
 import { isAuth } from "./isAuth";
 import axios, { AxiosResponse } from 'axios';
-const PORT = process.env.PORT || 3200;
+
 const main = async () => {
   await createConnection({
     type: "postgres",
@@ -197,6 +197,7 @@ const main = async () => {
   //   // res.send({ todo });
   // });
 
+  
   app.get("/me", async (req, res) => {
     // Bearer 120jdklowqjed021901
     const authHeader = req.headers.authorization;
@@ -234,7 +235,7 @@ const main = async () => {
   app.get("/", (_req, res) => {
     res.send("hello");
   });
-  app.listen(PORT, () => {
+  app.listen(3002, () => {
     console.log("listening on localhost:3002");
   });
 };
