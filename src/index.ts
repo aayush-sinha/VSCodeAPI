@@ -85,19 +85,35 @@ const main = async () => {
   });
 
   app.post("/todo", isAuth, async (req, res) => {
-
+    try{
+      if(req.body.text.includes("#")){
       const ticketId = req.body.text.replace('#','');
-      let result: AxiosResponse = await axios.get(`https://api.clickup.com/api/v2/task/${ticketId}`, { headers: {"Authorization" : req.body.clickupId}});
+      let result: AxiosResponse = await axios.get(`https://api.clickup.com/api/v2/task/${ticketId}`, { headers: {"Authorization" :  "pk_3344635_OKQECX1X18DADHGYTS13GY1UI8C8SCH7"}});
       let ticket = result.data;
       console.log(ticket)
-
+      
   
-    const todo = await Todo.create({
+    const todo = await Todo.create({ 
       text: ticket.name,
       taskId: ticketId,
+      creatorId: req.userId,
       status: ticket.status.status.toLowerCase()
     }).save();
+    
     res.send({ todo });
+  } else {
+    const todo = await Todo.create({ 
+      text: req.body.text,
+      taskId: "",
+      creatorId: req.userId,
+      status: ""
+    }).save();
+    res.send({ todo });
+  }
+    }
+    catch(e) {
+      console.log(e)
+    }
   });
 
   app.put("/clickup", isAuth, async (req, res) => {
@@ -111,42 +127,75 @@ const main = async () => {
     res.send({ user });
   });
 
-  app.put("/todo", isAuth, async (req, res) => {
+  app.delete("/todo", isAuth, async (req, res) => {
     try{
-      console.log("----id-----",req.body)
-      let status = req.body.status;
-      status = status.toLowerCase();
-      console.log('---120-----',status)
-
-    // const ticketId = req.body.text.replace('#','');
-    let todo = await Todo.findOne(req.body.id);
+      // let todoToRemove = await Todo.findOne(req.body.todoId);
+      await Todo.delete(req.body.todoId);
+      const todos = await Todo.find({
+        where: { creatorId: req.userId },
+        order: { id: "DESC" },
+      });
+  
+      res.send({ todos });
+    } catch(e){
       
-      console.log("----------todo",todo?.taskId)
-       let result: AxiosResponse = await axios.put(`https://api.clickup.com/api/v2/task/${todo?.taskId}`,{status}, { headers: {"Authorization" : req.body.clickupId}});
-       let ticket = result.data;
-       console.log('----------ticket-',ticket)
-      res.send({ticket});
-    }catch(e){
-      console.log('---er------',e)
+      console.log(e)
     }
-    // const todo = await Todo.create({
-    //   text: ticket.name,
-    //   creatorId: req.userId,
-    //   status: ticket.status.status.toLowerCase()
-    // }).save();
-    // res.send({ todo });
-    // const todo = await Todo.findOne(req.body.id);
-    // if (!todo) {
-    //   res.send({ todo: null });
-    //   return;
-    // }
-    // if (todo.creatorId !== req.userId) {
-    //   throw new Error("not authorized");
-    // }
-    // todo.completed = !todo.completed;
-    // await todo.save();
-    // res.send({ todo });
-  });
+  })
+  app.delete("/resetTodo", isAuth, async (req, res) => {
+    try{
+      // let todoToRemove = await Todo.findOne(req.body.todoId);
+      const todosArr = await Todo.find({
+        where: { creatorId: req.userId },
+        order: { id: "DESC" },
+      });
+      await Todo.remove(todosArr);
+      const todos = await Todo.find({
+        where: { creatorId: req.userId },
+        order: { id: "DESC" },
+      });
+      res.send({ todos });
+    } catch(e){
+      console.log(e)
+    }
+  })
+
+  // app.put("/todo", isAuth, async (req, res) => {
+  //   try{
+  //     console.log("----id-----",req.body)
+  //     let status = req.body.status;
+  //     status = status.toLowerCase();
+  //     console.log('---120-----',status)
+
+  //   // const ticketId = req.body.text.replace('#','');
+  //   let todo = await Todo.findOne(req.body.id);
+      
+  //     console.log("----------todo",todo?.taskId)
+  //      let result: AxiosResponse = await axios.put(`https://api.clickup.com/api/v2/task/${todo?.taskId}`,{status}, { headers: {"Authorization" : req.body.clickupId}});
+  //      let ticket = result.data;
+  //      console.log('----------ticket-',ticket)
+  //     res.send({ticket});
+  //   }catch(e){
+  //     console.log('---er------',e)
+  //   }
+  //   // const todo = await Todo.create({
+  //   //   text: ticket.name,
+  //   //   creatorId: req.userId,
+  //   //   status: ticket.status.status.toLowerCase()
+  //   // }).save();
+  //   // res.send({ todo });
+  //   // const todo = await Todo.findOne(req.body.id);
+  //   // if (!todo) {
+  //   //   res.send({ todo: null });
+  //   //   return;
+  //   // }
+  //   // if (todo.creatorId !== req.userId) {
+  //   //   throw new Error("not authorized");
+  //   // }
+  //   // todo.completed = !todo.completed;
+  //   // await todo.save();
+  //   // res.send({ todo });
+  // });
 
   app.get("/me", async (req, res) => {
     // Bearer 120jdklowqjed021901

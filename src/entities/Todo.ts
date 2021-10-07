@@ -25,6 +25,9 @@ export class Todo extends BaseEntity {
   @Column("boolean", { default: false })
   completed: boolean;
 
+  @Column()
+  creatorId: number;
+
   @Column('timestamp', { name: 'date', default: (): string => 'LOCALTIMESTAMP' })
   date?: Date;
 
